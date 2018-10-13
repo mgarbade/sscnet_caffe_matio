@@ -64,27 +64,28 @@ void WriteBlobToMat(const char *fname, bool write_diff,
   mat_t *matfp;
   matfp = Mat_Create(fname, 0);
   CHECK(matfp) << "Error creating MAT file " << fname;
-  size_t dims[4];
-  dims[0] = blob->width();
-  dims[1] = blob->height();
-  dims[2] = blob->channels();
-  dims[3] = blob->num();
+  size_t dims[5];
+  dims[0] = blob->z();
+  dims[1] = blob->width();
+  dims[2] = blob->height();
+  dims[3] = blob->channels();
+  dims[4] = blob->num();
   matvar_t *matvar;
   // save data
   {
     matvar = Mat_VarCreate("data", matio_class_map<Dtype>(), matio_type_map<Dtype>(),
-			   4, dims, blob->mutable_cpu_data(), 0);
+			   5, dims, blob->mutable_cpu_data(), 0);
     CHECK(matvar) << "Error creating 'data' variable";
-    CHECK_EQ(Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE), 0) 
+    CHECK_EQ(Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_ZLIB), 0) 
       << "Error saving array 'data' into MAT file " << fname;
     Mat_VarFree(matvar);
   }
   // save diff
   if (write_diff) {
     matvar = Mat_VarCreate("diff", matio_class_map<Dtype>(), matio_type_map<Dtype>(),
-			   4, dims, blob->mutable_cpu_diff(), 0);
+			   5, dims, blob->mutable_cpu_diff(), 0);
     CHECK(matvar) << "Error creating 'diff' variable";
-    CHECK_EQ(Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE), 0)
+    CHECK_EQ(Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_ZLIB), 0)
       << "Error saving array 'diff' into MAT file " << fname;
     Mat_VarFree(matvar);
   }
